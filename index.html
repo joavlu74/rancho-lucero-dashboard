@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rancho Lucero — Costos y Producción</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0e1512; --card:#16211c; --card2:#1c2a23; --ink:#eaf3ee; --muted:#9db3a8;
+    --line:#26362d; --green:#3fb96b; --green2:#7dd6a0; --amber:#e0a63a; --blue:#4f9dd6;
+    --violet:#a985e0; --red:#e0685f; --wa:#075e54; --wa2:#128c7e; --wabub:#005c4b; --wabub2:#202c33;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:28px 20px 60px}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:14px}
+  h2{font-size:17px;margin:34px 0 14px;display:flex;align-items:center;gap:8px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .kpi .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .kpi .v{font-size:24px;font-weight:700;margin-top:6px}
+  .kpi .v small{font-size:13px;color:var(--muted);font-weight:500}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h3{margin:0 0 12px;font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .t-sue{background:rgba(63,185,107,.16);color:var(--green2)}
+  .t-ins{background:rgba(224,166,58,.16);color:var(--amber)}
+  .t-tra{background:rgba(79,157,214,.16);color:var(--blue)}
+  .t-des{background:rgba(169,133,224,.16);color:var(--violet)}
+  .foot{color:var(--muted);font-size:12px;margin-top:8px}
+  .note{background:var(--card2);border-left:3px solid var(--green);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--ink);margin-top:14px}
+  canvas{max-height:300px}
+
+  /* --- WhatsApp collapsible --- */
+  details.wa{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:2px}
+  details.wa>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--wa),var(--wa2));color:#eafff8;font-weight:600}
+  details.wa>summary::-webkit-details-marker{display:none}
+  .wa-ic{width:34px;height:34px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .wa-ic svg{width:20px;height:20px}
+  .wa-tt{display:flex;flex-direction:column;line-height:1.3}
+  .wa-tt small{font-weight:400;opacity:.85;font-size:11px}
+  .wa-chev{margin-left:auto;transition:transform .2s;opacity:.85}
+  details.wa[open] .wa-chev{transform:rotate(180deg)}
+  .wa-body{background:#0b141a;padding:16px 14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cg fill='%23131f27' fill-opacity='0.5'%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Ccircle cx='28' cy='22' r='1.5'/%3E%3C/g%3E%3C/svg%3E")}
+  .wa-day{text-align:center;margin:10px 0}
+  .wa-day span{background:#1d2c35;color:#8fa6b1;font-size:11px;padding:4px 12px;border-radius:8px}
+  .bub{max-width:78%;padding:7px 10px 6px;border-radius:9px;margin:6px 0;font-size:13.5px;line-height:1.4;position:relative;box-shadow:0 1px 1px rgba(0,0,0,.2);word-wrap:break-word}
+  .bub .nm{font-size:12px;font-weight:700;margin-bottom:2px}
+  .bub .tm{font-size:10px;color:#8aa0ab;float:right;margin:4px 0 -2px 10px}
+  .bub .tm.ck::after{content:" ✓✓";color:#53bdeb}
+  .them{background:var(--wabub2);color:#e9edef;border-top-left-radius:2px;margin-right:auto}
+  .me{background:var(--wabub);color:#e9edef;border-top-right-radius:2px;margin-left:auto}
+  .nm.n1{color:#53bdeb}.nm.n2{color:#ffab91}.nm.n3{color:#a5d6a7}
+  .wa-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-bottom:3px}
+  .wa-tag.hi{background:rgba(224,166,58,.2);color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌱 Rancho Lucero — Costos y Producción</h1>
+  <p class="sub" id="subline">Ejote francés · Ciclo actual · Actualizado 28-sep-2026 · Moneda: MXN (TC ~16.89)</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="l">Costo total acumulado</div><div class="v">$47,766 <small>MXN</small></div></div>
+    <div class="kpi"><div class="l">Sueldos (mano de obra)</div><div class="v">$33,912 <small>71%</small></div></div>
+    <div class="kpi"><div class="l">Insumos + plaguicida</div><div class="v">$10,211 <small>21%</small></div></div>
+    <div class="kpi"><div class="l">Trampas + desinfección</div><div class="v">$3,644 <small>8%</small></div></div>
+    <div class="kpi"><div class="l">Plantas invernadero</div><div class="v">42,000 <small>N 24k / S 18k</small></div></div>
+  </div>
+
+  <!-- ============ WHATSAPP HIGHLIGHTS (colapsable) ============ -->
+  <h2>💬 Bitácora de campo — WhatsApp</h2>
+  <details class="wa">
+    <summary>
+      <span class="wa-ic"><svg viewBox="0 0 32 32" fill="#fff"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 27l6.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C6.5 18.6 6 16.8 6 15c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 9.8-10 9.8zm5.5-7.4c-.3-.2-1.8-.9-2-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5s-.7-1.6-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.3 5.2 4.6 2.3.9 2.9.8 3.5.7.6-.1 1.8-.7 2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></span>
+      <span class="wa-tt">Grupo Rancho Lucero — Jorge · Juan<small>Ver conversación de campo · toca para expandir</small></span>
+      <span class="wa-chev">▾</span>
+    </summary>
+    <div class="wa-body">
+      <div class="wa-day"><span>18 de septiembre</span></div>
+
+      <div class="bub them"><div class="nm n2">Juan (Rancho)</div>Empezamos la siembra de campo abierto hoy. Media hectárea, variedad Serengeti.<span class="tm">08:12</span></div>
+
+      <div class="bub them"><div class="nm n2">Juan (Rancho)</div>Problema: la sembradora manual quedó mal calibrada. Rogelio sembró en bonche las primeras camas.<span class="tm">11:40</span></div>
+
+      <div class="bub me"><div class="wa-tag hi">⚠️ Decisión</div><div class="nm n1">Jorge</div>Ok, esas 24 camas en bonche ya tapadas déjalas, no se recuperan. Recuperen semilla para las demás y seguimos.<span class="tm ck">11:58</span></div>
+
+      <div class="bub them"><div class="nm n3">Calce (asistente)</div>Registrado: 24 camas en bonche (no recuperadas), se recupera semilla para llegar a ~48 camas. 12 camas quedan pendientes de semilla nueva.<span class="tm">12:03</span></div>
+
+      <div class="wa-day"><span>19 de septiembre</span></div>
+
+      <div class="bub them"><div class="nm n2">Juan (Rancho)</div>Siembra completada. Quedaron ~48 camas de 50 m.<span class="tm">17:20</span></div>
+
+      <div class="bub me"><div class="nm n1">Jorge</div>Perfecto. Primer riego mañana temprano.<span class="tm ck">17:25</span></div>
+
+      <div class="wa-day"><span>20 de septiembre</span></div>
+
+      <div class="bub them"><div class="nm n2">Juan (Rancho)</div>Listo el primer riego de campo abierto. Invernadero sigue en floración, se ve cargado.<span class="tm">07:05</span></div>
+
+      <div class="bub me"><div class="wa-tag hi">📌 Clave</div><div class="nm n1">Jorge</div>Cuando salga el primer corte del invernadero, pésenlo y anótenlo. Ese dato es el que necesito para el estimado real de Sergio.<span class="tm ck">07:31</span></div>
+
+      <div class="bub them"><div class="nm n3">Calce (asistente)</div>Anotado. Primer corte invernadero = dato prioritario (valida rendimiento/planta y el compromiso de ~6 ton con Sergio). Aviso en cuanto lo tengamos.<span class="tm">07:33</span></div>
+
+      <p class="foot" style="text-align:center;margin-top:14px;color:#6d8590">Vista de highlights. La conversación completa vive en el grupo de WhatsApp del rancho.</p>
+    </div>
+  </details>
+
+  <h2>💰 Costos</h2>
+  <div class="grid2">
+    <div class="card"><h3>Por categoría</h3><canvas id="catChart"></canvas></div>
+    <div class="card"><h3>Por cultivo</h3><canvas id="cropChart"></canvas></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h3>Gasto acumulado en el tiempo</h3><canvas id="timeChart"></canvas></div>
+
+  <h2>📅 Línea de tiempo de producción</h2>
+  <div class="card"><canvas id="ganttChart" style="max-height:360px"></canvas>
+    <p class="foot">Barras sólidas = etapas transcurridas/en curso. Fechas de cosecha y pepino son <b>estimadas</b> (se afinan con el primer corte del ejote).</p>
+  </div>
+
+  <h2>📈 Rentabilidad (estimado · 4 toneladas)</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="l">Volumen supuesto</div><div class="v">4,000 <small>kg (4 ton)</small></div></div>
+    <div class="kpi"><div class="l">Costo total proyectado</div><div class="v">$62,000 <small>MXN</small></div></div>
+    <div class="kpi"><div class="l">Costo por kg</div><div class="v">$15.5 <small>MXN/kg</small></div></div>
+    <div class="kpi"><div class="l">Punto de equilibrio</div><div class="v">$15.5 <small>MXN/kg venta</small></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h3>Utilidad proyectada según precio de venta</h3><canvas id="profitChart"></canvas>
+    <p class="foot">Precio de venta = <b>estimado de mercado, por confirmar</b> con comercializadora. Costo proyectado = $47,766 gastados + ~$14,234 restantes al cierre de ciclo.</p>
+  </div>
+  <div class="card" style="margin-top:18px;padding:6px 18px 14px">
+    <table>
+      <thead><tr><th>Precio venta</th><th class="n">Ingreso</th><th class="n">Utilidad</th><th class="n">Margen</th><th class="n">ROI</th></tr></thead>
+      <tbody>
+        <tr><td>$18 / kg</td><td class="n">72,000</td><td class="n">+10,000</td><td class="n">14%</td><td class="n">16%</td></tr>
+        <tr><td>$22 / kg</td><td class="n">88,000</td><td class="n">+26,000</td><td class="n">30%</td><td class="n">42%</td></tr>
+        <tr><td>$25 / kg</td><td class="n">100,000</td><td class="n">+38,000</td><td class="n">38%</td><td class="n">61%</td></tr>
+        <tr><td>$30 / kg</td><td class="n">120,000</td><td class="n">+58,000</td><td class="n">48%</td><td class="n">94%</td></tr>
+        <tr><td>$35 / kg</td><td class="n">140,000</td><td class="n">+78,000</td><td class="n">56%</td><td class="n">126%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>🧾 Detalle de gastos</h2>
+  <div class="card" style="padding:6px 18px 14px">
+    <table>
+      <thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Cultivo</th><th class="n">MXN</th></tr></thead>
+      <tbody>
+        <tr><td>04-sep</td><td>Sueldos Calambres+Rogelio (6ago–4sep, 30d @$20)</td><td><span class="tag t-sue">Sueldos</span></td><td>Invernadero</td><td class="n">20,400.00</td></tr>
+        <tr><td>05-sep</td><td>Sueldos Calambres+Rogelio (5–12sep @$25, adelantado)</td><td><span class="tag t-sue">Sueldos</span></td><td>Invernadero</td><td class="n">6,756.00</td></tr>
+        <tr><td>05-sep</td><td>Paquete MAP+SOP+Micro+Calcio+Rootex</td><td><span class="tag t-ins">Insumos</span></td><td>Invernadero</td><td class="n">5,310.00</td></tr>
+        <tr><td>05-sep</td><td>MKP 25 kg</td><td><span class="tag t-ins">Insumos</span></td><td>Invernadero</td><td class="n">1,125.00</td></tr>
+        <tr><td>05-sep</td><td>Sulfato de Magnesio 25 kg</td><td><span class="tag t-ins">Insumos</span></td><td>Invernadero</td><td class="n">691.00</td></tr>
+        <tr><td>05-sep</td><td>Cintas trampa azul/amarilla</td><td><span class="tag t-tra">Trampas</span></td><td>Invernadero</td><td class="n">2,229.48</td></tr>
+        <tr><td>05-sep</td><td>MicroClean 6 L</td><td><span class="tag t-des">Desinfección</span></td><td>Campo abierto</td><td class="n">998.20</td></tr>
+        <tr><td>05-sep</td><td>MicroClean 2.5 L</td><td><span class="tag t-des">Desinfección</span></td><td>Invernadero</td><td class="n">416.00</td></tr>
+        <tr><td>14-sep</td><td>Sueldos Calambres+Rogelio (13–16sep, dom–mié)</td><td><span class="tag t-sue">Sueldos</span></td><td>Invernadero</td><td class="n">3,378.00</td></tr>
+        <tr><td>15-sep</td><td>Kelatex Multi 1 kg (microelementos)</td><td><span class="tag t-ins">Insumos</span></td><td>Invernadero</td><td class="n">275.00</td></tr>
+        <tr><td>15-sep</td><td>Exalt 1 L (spinetoram)</td><td><span class="tag t-ins">Insumos</span></td><td>Invernadero</td><td class="n">2,809.50</td></tr>
+        <tr><td>17-sep</td><td>Sueldos Calambres+Rogelio (17–20sep, jue–dom)</td><td><span class="tag t-sue">Sueldos</span></td><td>Invernadero</td><td class="n">3,378.00</td></tr>
+      </tbody>
+      <tfoot><tr><th colspan="4">TOTAL</th><th class="n" style="font-size:14px">$47,766.18</th></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="note">
+    <b>Notas:</b> Sueldos = capital de trabajo (se recuperan antes de repartir utilidad). El <b>paquete de $5,310</b> está sin desglose unitario por producto (pendiente). El costo casi total es del <b>invernadero</b>; campo abierto solo tiene la desinfección hasta ahora (la mano de obra se dividirá 50/50 cuando arranque en firme).
+  </div>
+  <p class="foot">Rancho Lucero · Jorge + Juan · Generado por Calce · <span id="genstamp"></span></p>
+</div>
+
+<script>
+Chart.defaults.color = '#9db3a8';
+Chart.defaults.font.family = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+const money = v => '$' + v.toLocaleString('es-MX',{maximumFractionDigits:0});
+
+// Por categoría
+new Chart(catChart, {
+  type:'doughnut',
+  data:{labels:['Sueldos','Insumos','Trampas','Desinfección'],
+    datasets:[{data:[33912,10210.5,2229.48,1414.2],
+      backgroundColor:['#3fb96b','#e0a63a','#4f9dd6','#a985e0'],borderColor:'#16211c',borderWidth:2}]},
+  options:{plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.label+': '+money(c.parsed)}}},cutout:'58%'}
+});
+
+// Por cultivo
+new Chart(cropChart, {
+  type:'bar',
+  data:{labels:['Ejote Invernadero','Ejote Campo Abierto'],
+    datasets:[{data:[46767.98,998.2],backgroundColor:['#3fb96b','#e0a63a'],borderRadius:6}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.parsed.y)}}},
+    scales:{y:{ticks:{callback:v=>'$'+v/1000+'k'},grid:{color:'#26362d'}},x:{grid:{display:false}}}}
+});
+
+// Gasto acumulado
+const days=['04-sep','05-sep','14-sep','15-sep','17-sep'];
+const daily=[20400,17525.68,3378,3084.5,3378];
+let acc=0; const cum=daily.map(d=>acc+=d);
+new Chart(timeChart, {
+  data:{labels:days,
+    datasets:[
+      {type:'bar',label:'Gasto del día',data:daily,backgroundColor:'#2e6f47',borderRadius:5,order:2},
+      {type:'line',label:'Acumulado',data:cum,borderColor:'#7dd6a0',backgroundColor:'#7dd6a0',tension:.3,pointRadius:4,order:1,yAxisID:'y'}
+    ]},
+  options:{plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}},
+    scales:{y:{ticks:{callback:v=>'$'+v/1000+'k'},grid:{color:'#26362d'}},x:{grid:{display:false}}}}
+});
+
+// Gantt de producción — x = días desde 1-ago-2026
+const phases=[
+  {c:'Ejote Invernadero — Siembra → Floración', s:5, e:40, col:'#3fb96b'},
+  {c:'Ejote Invernadero — Floración → 1er corte', s:40, e:61, col:'#7dd6a0'},
+  {c:'Ejote Invernadero — Cosecha (est.)', s:61, e:96, col:'#2e6f47'},
+  {c:'Ejote Campo Abierto — Desinfección/Siembra', s:35, e:55, col:'#e0a63a'},
+  {c:'Ejote Campo Abierto — Desarrollo', s:55, e:106, col:'#c98f2e'},
+  {c:'Ejote Campo Abierto — Cosecha (est.)', s:106, e:141, col:'#a06f1f'},
+  {c:'Pepino Persa — Semillero (est.)', s:78, e:101, col:'#4f9dd6'},
+  {c:'Pepino Persa — Trasplante → Cosecha (est.)', s:101, e:212, col:'#3a7aa8'},
+];
+const monthTicks={0:'Ago',31:'Sep',61:'Oct',92:'Nov',122:'Dic',153:'Ene',184:'Feb',212:'Mar'};
+new Chart(ganttChart, {
+  type:'bar',
+  data:{labels:phases.map(p=>p.c),
+    datasets:[{data:phases.map(p=>[p.s,p.e]),backgroundColor:phases.map(p=>p.col),borderRadius:5,barPercentage:.7}]},
+  options:{indexAxis:'y',
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>{const p=phases[c.dataIndex];const f=d=>{const dt=new Date(2026,7,1);dt.setDate(dt.getDate()+d);return dt.toLocaleDateString('es-MX',{day:'numeric',month:'short'})};return f(p.s)+' → '+f(p.e)}}},
+      annotation:false},
+    scales:{
+      x:{min:0,max:215,grid:{color:'#26362d'},ticks:{stepSize:1,callback:v=>monthTicks[v]||'',autoSkip:false,maxRotation:0}},
+      y:{grid:{display:false},ticks:{font:{size:11}}}
+    }}
+});
+
+// Rentabilidad — utilidad vs precio (4 ton, costo $62k)
+const precios=[15.5,18,22,25,30,35];
+const util=precios.map(p=>p*4000-62000);
+new Chart(profitChart, {
+  type:'bar',
+  data:{labels:precios.map(p=>'$'+p+'/kg'),
+    datasets:[{label:'Utilidad',data:util,
+      backgroundColor:util.map(v=>v<=0?'#e0685f':(v<20000?'#e0a63a':'#3fb96b')),borderRadius:6}]},
+  options:{plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>'Utilidad: '+money(c.parsed.y)}}},
+    scales:{y:{ticks:{callback:v=>'$'+v/1000+'k'},grid:{color:'#26362d'}},
+      x:{grid:{display:false},title:{display:true,text:'Precio de venta (equilibrio $15.5/kg)',color:'#9db3a8'}}}}
+});
+
+// Sello de generación
+document.getElementById('genstamp').textContent = 'Última actualización automática: ' + new Date().toLocaleString('es-MX',{dateStyle:'long',timeStyle:'short'});
+</script>
+</body>
+</html>
